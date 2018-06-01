@@ -1,0 +1,216 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+
+
+@*@model IEnumerable<BlogBD.Models.BlogPost>*@
+@model IPagedList<BlogBD.Models.BlogPost>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<!-- < -- Page Content -->
+<div class="container">
+    <div class="row">
+        <!-- Blog Entries Column -->
+        <div class="col-md-8">
+            <h1 class="my-4">
+                Brent's Blog of Wisdom
+            </h1>
+            <!-- Blog Post -->
+
+            @foreach (var item in Model)
+            {
+                if (item.Published == true)
+                {
+                    <div class="card mb-4">
+                        @if (item.MediaURL != null)
+                        {
+                            <img class="img-responsive" src="@item.MediaURL" alt="">
+                        }
+                        else
+                        {
+                            <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                        }
+
+                        <div class="card-body">
+                            <h2 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h2>
+                            <p class="card-text">
+                                @*@Html.DisplayFor(modelItem => item.Body)*@
+                                @Html.Raw(item.Abstract)
+                            </p>
+                            <a class="btn btn-primary" href=" @Url.Action("Details", "BlogPosts", new { Slug = item.Slug }) ">Read More &rarr;</a>
+                        </div>
+
+                        <div class="card-footer ">
+                            Posted on @Html.DisplayFor(modelItem => item.Created) by
+                            <a href="#">@Html.DisplayFor(modelItem => item.Author.Displayname)</a>
+                        </div>
+                    </div>
+
+
+                    @*@*<tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Updated)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Slug)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.MediaURL)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Published)
+                        </td>
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                            @Html.ActionLink("Details", "Details", new { id = item.Id }) |*@
+                    @*@Html.ActionLink("Details", "Details", new { slug = item.Slug }) |*@
+                    @* @Html.ActionLink("Delete", "Delete", new { id = item.Id })*@
+                    @*</td>
+                        </tr>*@
+                }
+
+            }
+
+            <!--show admin the unpublished posts-->
+            @if (User.IsInRole("Admin"))
+            {
+
+                @*<h1>Unpublished Posts: </h1>*@
+
+                foreach (var item in Model)
+                {
+                    if (item.Published == false)
+                    {
+                        <div class="card mb-4">
+                            @if (item.MediaURL != null)
+                            {
+                                <img class="img-responsive" src="@item.MediaURL" alt="">
+                            }
+                            else
+                            {
+                                <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                            }
+
+                            <div class="card-body">
+                                <h2 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h2>
+                                <p class="card-text">
+                                    @*@Html.DisplayFor(modelItem => item.Body)*@
+                                    @Html.Raw(item.Abstract)
+                                </p>
+                                <a class="btn btn-primary" href=" @Url.Action("Details", "BlogPosts", new { Slug = item.Slug }) ">Read More &rarr;</a>
+                            </div>
+
+                            <div class="card-footer ">
+                                Posted on @Html.DisplayFor(modelItem => item.Created) by
+                                <a href="#">@Html.DisplayFor(modelItem => item.Author.Displayname)</a>
+                            </div>
+                        </div>
+
+
+                        @*@*<tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Updated)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Slug)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.MediaURL)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Published)
+                            </td>
+                            <td>
+                                @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
+                                @Html.ActionLink("Details", "Details", new { id = item.Id }) |*@
+                        @*@Html.ActionLink("Details", "Details", new { slug = item.Slug }) |*@
+                        @* @Html.ActionLink("Delete", "Delete", new { id = item.Id })*@
+                        @*</td>
+                            </tr>*@
+                    }
+
+                }
+            }
+            <!-- Pagination -->
+            @*<ul class="pagination justify-content-center mb-4">
+                <li class="page-item">
+                    <a class="page-link" href="#">&larr; Older</a>
+                </li>
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">Newer &rarr;</a>
+                </li>
+            </ul>*@
+            Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchStr=ViewBag.Search }))
+        </div>
+        <!-- Sidebar Widgets Column -->
+        <div class="col-md-4">
+            <!-- Search Widget -->
+            @using (Html.BeginForm("Index", "BlogPosts", FormMethod.Get, htmlAttributes: new { @class = "form" }))
+            {
+            <div class="card my-4">
+                <h5 class="card-header">Search</h5>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search for..." id="searchStr" name="searchStr">
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary" type="submit" id="searchStr" name="searchStr">Go!</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            }
+            <!-- Categories Widget -->
+            <div class="card my-4">
+                <h5 class="card-header">Categories</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>
+                                    <a href="#">Web Design</a>
+                                </li>
+                                <li>
+                                    <a href="#">HTML</a>
+                                </li>
+                                <li>
+                                    <a href="#">Freebies</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-6">
+                            <ul class="list-unstyled mb-0">
+                                <li>
+                                    <a href="#">JavaScript</a>
+                                </li>
+                                <li>
+                                    <a href="#">CSS</a>
+                                </li>
+                                <li>
+                                    <a href="#">Tutorials</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Side Widget, only for admins -->
+            @*@if (User.Identity.IsAuthenticated)*@
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="card my-4">
+                    <h5 class="card-header">Create Blog Post</h5>
+                    <div class="card-body">
+                        <p>
+                            @Html.ActionLink("Create New", "Create")
+                        </p>
+                    </div>
+                </div>
+                }
+        </div>
+    </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->

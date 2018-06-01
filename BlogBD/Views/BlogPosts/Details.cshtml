@@ -1,0 +1,195 @@
+﻿@model BlogBD.Models.BlogPost
+
+@{
+    ViewBag.Title = "Details";
+}
+
+    <!--Template-->
+
+<body>
+    <div>
+        <!-- Page Content -->
+        <div class="container">
+
+            <div class="row">
+
+                <!-- Post Content Column -->
+                <div class="col-lg-8">
+
+                    <!-- Title -->
+                    <h1 class="mt-4">@Html.DisplayFor(model => model.Title)</h1>
+
+                    <!-- Author -->
+                    <p class="lead">
+                        by
+                        <a href="#">@Html.DisplayFor(modelItem => Model.Author.Displayname)</a>
+                    </p>
+
+                    <hr>
+
+                    <!-- Date/Time -->
+                    <p> @Html.DisplayFor(model => model.Created)</p>
+
+                    <hr>
+
+                    <!-- Preview Image -->
+                    @if (Model.MediaURL != null)
+                    {
+                        <img class="img-responsive" src="@Model.MediaURL" alt="">
+                    }
+                    else
+                    {
+                        <img class="card-img-top" src="http://placehold.it/750x300" alt="Card image cap">
+                    }
+                    @*@Html.DisplayFor(model => model.MediaURL)*@
+                    <hr>
+
+                    <!-- Post Content -->
+                    <div style="overflow-wrap: break-word">
+                        <p>
+                            @*@Html.DisplayFor(model => model.Body)*@
+                            @Html.Raw(Model.Body)
+                        </p>
+                    </div>
+
+                    <hr>
+                    <div class="card my-4">
+                        <h5 class="card-header">Leave a Comment:</h5>
+                        <div class="card-body">
+                            
+                            @using (Html.BeginForm("Create", "Comments", FormMethod.Post, new { enctype = "Multipart/form-data" }))
+                            {
+                                <!-- Comments Form -->
+
+                                @Html.AntiForgeryToken()
+
+                                @Html.Hidden("PostId", Model.Id)
+
+                                @Html.EditorFor(model => model.Body, new { htmlAttributes = new { @class = "form-control", @Value = "" } })
+                                <br />
+                                
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            }
+                        </div>
+                    </div>
+
+                    @foreach (var item in Model.Comments)
+                    {
+                    <div class="card my-4">
+                        <div class="card-body">
+                            <div class="media mb-4">
+                                @*<img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">*@
+                                <div class="media-body">
+                                    <h4 class="mt-0">@Html.DisplayFor(modelItem => item.Author.Displayname)</h4>
+                                    <h5 class="mt-0">@Html.DisplayFor(modelItem => item.Created)</h5>
+                                    @Html.DisplayFor(modelItem => item.Body)
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                                    {
+                                        <br />
+                                        @*@Html.ActionLink("Edit", "Comments", new { id = item.Id })*@
+                                        <a href="@Url.Action("Edit", "Comments", new { id = item.Id })">Edit</a>
+                                        <br />
+                                        <a href="@Url.Action("Delete", "Comments", new { id = item.Id })">Delete</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                        <!-- Comment with nested comments -->
+                        @*<div class="media mb-4">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                        <h5 class="mt-0">Commenter Name</h5>
+                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+
+                        @*<div class="media mt-4">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                        <h5 class="mt-0">Commenter Name</h5>
+                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                    </div>
+                </div>
+
+               <div class="media mt-4">
+                    <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+                    <div class="media-body">
+                        <h5 class="mt-0">Commenter Name</h5>
+                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                    </div>
+                </div>
+
+            </div>
+                    </div>
+
+                </div>*@
+                    </div>
+                <!-- Sidebar Widgets Column -->
+                <div class="col-md-4">
+
+                    <!-- Search Widget -->
+                    @*<div class="card my-4">
+                        <h5 class="card-header">Search</h5>
+                        <div class="card-body">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search for...">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-secondary" type="button">Go!</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>*@
+
+                    <!-- Categories Widget -->
+                    <div class="card my-4">
+                        <h5 class="card-header">Back to List</h5>
+                        <div class="card-body">
+                            <p>
+                                @Html.ActionLink("Back to List", "Index")
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Admin only settings -->
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="card my-4">
+                            <h5 class="card-header">Blog Settings</h5>
+                            <div class="card-body">
+                                <p>
+                                    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+                                    @Html.ActionLink("Delete", "Delete", new { id = Model.Id }) 
+
+                                </p>
+                            </div>
+                        </div>
+                    }
+
+            
+
+                </div>
+
+            </div>
+            <!-- /.row -->
+
+        </div>
+        <!-- /.container -->
+        <!-- Bootstrap core JavaScript -->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    </div>
+
+</body>
+
+
+
+
+
+
+
+@*@Html.DisplayFor(model => model.Updated)
+    @Html.DisplayFor(model => model.Slug)
+    @Html.DisplayFor(model => model.Published)*@
+
+<!--Scaffold-->
